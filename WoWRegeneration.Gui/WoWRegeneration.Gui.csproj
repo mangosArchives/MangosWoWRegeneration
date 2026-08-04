@@ -1,14 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D660BE4D-54F4-4AA7-8505-4949E1F4AEEB}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{7F2A3C51-9D4E-4B86-A1C7-3E5D8F0B2A64}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WoWRegeneration</RootNamespace>
-    <AssemblyName>WoWRegeneration</AssemblyName>
+    <RootNamespace>WoWRegeneration.Gui</RootNamespace>
+    <AssemblyName>WoWRegeneration.Gui</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -37,39 +37,23 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\AppEnvironment.cs" />
-    <Compile Include="Data\FileDownloader.cs" />
-    <Compile Include="Data\ManifestFile.cs" />
-    <Compile Include="Data\FileObject.cs" />
-    <Compile Include="Data\Session.cs" />
+    <Compile Include="MainForm.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegenerationProcess.cs" />
-    <Compile Include="Repositories\WoW51016357.cs" />
-    <Compile Include="Repositories\IWoWRepository.cs" />
-    <Compile Include="Repositories\RepositoriesManager.cs" />
-    <Compile Include="Repositories\WoW434.cs" />
-    <Compile Include="Repositories\WoW51116685.cs" />
-    <Compile Include="Repositories\WoW54818414.cs" />
-    <Compile Include="UI\ConsoleDownloadProgressBar.cs" />
-    <Compile Include="UI\UserInputs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WoWRegeneration\WoWRegeneration.csproj">
+      <Project>{D660BE4D-54F4-4AA7-8505-4949E1F4AEEB}</Project>
+      <Name>WoWRegeneration</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
