@@ -1,74 +1,59 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
+using System;
+using WoWRegeneration.Core;
+using WoWRegeneration.UI;
 
 namespace WoWRegeneration
 {
     internal class Program
     {
-        public static string ExecutionPath { get; set; }
-
-        /// <summary>
-        ///     Program start point
-        /// </summary>
         private static void Main()
         {
             InitConsole();
+            AppEnvironment.Message += WriteToConsole;
 
-            WoWRegeneration.Process();
+            RegenerationProcess.Run();
 
-            WaitUntilEnd();
+            AppEnvironment.Log("");
+            AppEnvironment.Log("Press enter to exit program.");
+            Console.ReadLine();
         }
 
-        /// <summary>
-        ///     Print an empty line on console
-        /// </summary>
-        public static void Log()
+        private static void WriteToConsole(string text, LogLevel level)
         {
-            Log("", ConsoleColor.White);
-        }
-
-        /// <summary>
-        ///     Print a value on console, with default color (white)
-        /// </summary>
-        /// <param name="value">value to print on console</param>
-        public static void Log(string value)
-        {
-            Log(value, ConsoleColor.White);
-        }
-
-        /// <summary>
-        ///     Print a value on console, with specified color
-        /// </summary>
-        /// <param name="value">value to print on console</param>
-        /// <param name="color">forecolor to use</param>
-        public static void Log(string value, ConsoleColor color)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(value);
+            ConsoleDownloadProgressBar.ClearActiveLine();
+            Console.ForegroundColor = ColorOf(level);
+            Console.WriteLine(text);
             Console.ResetColor();
         }
 
-        /// <summary>
-        ///     Initialize console
-        /// </summary>
-        private static void InitConsole()
+        private static ConsoleColor ColorOf(LogLevel level)
         {
-            Console.Clear();
-            Version version = Assembly.GetEntryAssembly().GetName().Version;
-            Console.Title = "Mangos WoW Regeneration - " + version;
-            ExecutionPath = Environment.CurrentDirectory;
-            if (ExecutionPath != null && !ExecutionPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                ExecutionPath = ExecutionPath + Path.DirectorySeparatorChar;
+            switch (level)
+            {
+                case LogLevel.Detail:
+                    return ConsoleColor.DarkGray;
+                case LogLevel.Success:
+                    return ConsoleColor.Green;
+                case LogLevel.Warning:
+                    return ConsoleColor.Yellow;
+                case LogLevel.Error:
+                    return ConsoleColor.Red;
+                default:
+                    return ConsoleColor.White;
+            }
         }
 
-        /// <summary>
-        ///     Fonction to avoid console close
-        /// </summary>
-        private static void WaitUntilEnd()
+        private static void InitConsole()
         {
-            Log("Press enter to exit program.");
-            Console.ReadLine();
+            try
+            {
+                Console.Clear();
+                Console.Title = "Mangos WoW Regeneration - " + AppEnvironment.GetVersion();
+            }
+            catch (Exception)
+            {
+                // output is redirected, cursor and title are unavailable
+            }
         }
     }
 }

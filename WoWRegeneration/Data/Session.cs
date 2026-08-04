@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using WoWRegeneration.Core;
 using WoWRegeneration.Repositories;
 
 namespace WoWRegeneration.Data
@@ -23,11 +24,13 @@ namespace WoWRegeneration.Data
             MFil = mfil;
             Locale = locale;
             Os = os;
-            IWoWRepository rep = RepositoriesManager.GetRepositoryByMfil(mfil);
-            if (rep == null)
-                throw new Exception("Unknow mfil file");
-            WoWRepositoryName = rep.GetVersionName();
+            IWoWRepository repository = RepositoriesManager.GetRepositoryByMfil(mfil);
+            if (repository == null)
+                throw new ArgumentException("Unknown mfil file: " + mfil);
+            WoWRepositoryName = repository.GetVersionName();
         }
+
+        public static Session Current { get; set; }
 
         public bool SessionCompleted { get; set; }
         public string MFil { get; set; }
@@ -36,41 +39,62 @@ namespace WoWRegeneration.Data
         public string Os { get; set; }
         public List<string> CompletedFiles { get; set; }
 
-        public static Session LoadSession()
+        private static string SessionPath
         {
-            string sessionPath = Program.ExecutionPath + SessionFilename;
-            if (File.Exists(sessionPath))
+            get { return AppEnvironment.ExecutionPath + SessionFilename; }
+        }
+
+        public static Session Load()
+        {
+            if (!File.Exists(SessionPath))
+                return null;
+
+            try
             {
-                var xml = new XmlSerializer(typeof (Session));
-                var fs = new FileStream(sessionPath, FileMode.Open, FileAccess.Read);
-                var tmp = (Session) xml.Deserialize(fs);
-                fs.Close();
-                return tmp;
+                var serializer = new XmlSerializer(typeof (Session));
+                using (var stream = new FileStream(SessionPath, FileMode.Open, FileAccess.Read))
+                {
+                    var session = (Session) serializer.Deserialize(stream);
+                    if (session.CompletedFiles == null)
+                        session.CompletedFiles = new List<string>();
+                    return session;
+                }
             }
-            return null;
+            catch (Exception ex)
+            {
+                AppEnvironment.Log("Ignoring unreadable session file: " + ex.Message, LogLevel.Warning);
+                return null;
+            }
+        }
+
+        public bool Save()
+        {
+            try
+            {
+                var serializer = new XmlSerializer(typeof (Session));
+                using (var stream = new FileStream(SessionPath, FileMode.Create, FileAccess.Write))
+                {
+                    serializer.Serialize(stream, this);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppEnvironment.Log("Unable to save session: " + ex.Message, LogLevel.Warning);
+                return false;
+            }
         }
 
         public void Destroy()
         {
-            string sessionPath = Program.ExecutionPath + SessionFilename;
-            if (File.Exists(sessionPath))
-                File.Delete(sessionPath);
-        }
-
-        public bool SaveSession()
-        {
             try
             {
-                string sessionPath = Program.ExecutionPath + SessionFilename;
-                var xml = new XmlSerializer(typeof (Session));
-                var fs = new FileStream(sessionPath, FileMode.Create, FileAccess.Write);
-                xml.Serialize(fs, this);
-                fs.Close();
-                return true;
+                if (File.Exists(SessionPath))
+                    File.Delete(SessionPath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                AppEnvironment.Log("Unable to remove session file: " + ex.Message, LogLevel.Warning);
             }
         }
     }
